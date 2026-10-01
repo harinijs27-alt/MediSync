@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MediSync | Smart Hospital Command Center</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                <i class="fa-solid fa-heart-pulse"></i>
+            </div>
+
+            <div>
+                <h2>MediSync</h2>
+                <span>Smart Hospital</span>
+            </div>
+
+        </div>
+
+
+        <nav class="navigation">
+
+            <p class="menu-title">MAIN</p>
+
+            <a href="#" class="nav-item active" data-page="command">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Command Center</span>
+            </a>
+
+            <a href="#" class="nav-item" data-page="patients">
+                <i class="fa-solid fa-user-injured"></i>
+                <span>Patients</span>
+            </a>
+
+            <a href="#" class="nav-item" data-page="beds">
+                <i class="fa-solid fa-bed"></i>
+                <span>Bed Management</span>
+            </a>
+
+            <a href="#" class="nav-item" data-page="staff">
+                <i class="fa-solid fa-user-nurse"></i>
+                <span>Staff</span>
+            </a>
+
+            <a href="#" class="nav-item" data-page="equipment">
+                <i class="fa-solid fa-stethoscope"></i>
+                <span>Equipment</span>
+            </a>
+
+
+            <p class="menu-title">OPERATIONS</p>
+
+            <a href="#" class="nav-item" data-page="ot">
+                <i class="fa-solid fa-hospital"></i>
+                <span>OT Scheduler</span>
+            </a>
+
+            <a href="#" class="nav-item" data-page="ai">
+                <i class="fa-solid fa-robot"></i>
+                <span>AI Orchestration</span>
+            </a>
+
+            <a href="#" class="nav-item" data-page="forecast">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Forecast</span>
+            </a>
+
+            <a href="#" class="nav-item" data-page="emergency">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>Emergency</span>
+            </a>
+
+
+            <p class="menu-title">HEALTH DATA</p>
+
+            <a href="#" class="nav-item" data-page="health">
+                <i class="fa-solid fa-dna"></i>
+                <span>EHR / FHIR</span>
+            </a>
+
+            <a href="#" class="nav-item" data-page="analytics">
+                <i class="fa-solid fa-chart-column"></i>
+                <span>Analytics</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a href="#" class="nav-item" data-page="settings">
+                <i class="fa-solid fa-gear"></i>
+                <span>Settings</span>
+            </a>
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong id="systemStatusText">
+                        System Online
+                    </strong>
+
+                    <small id="systemStatusSub">
+                        ESP32 monitoring
+                    </small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main-content">
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1 id="pageTitle">
+                    Hospital Command Center
+                </h1>
+
+                <p id="pageSubtitle">
+                    One-patient live monitoring and orchestration
+                </p>
+
+            </div>
+
+
+            <div class="topbar-right">
+
+                <div class="live-status">
+
+                    <span></span>
+
+                    LIVE
+
+                </div>
+
+
+                <div class="date-time">
+
+                    <strong id="currentTime">
+                        --:--
+                    </strong>
+
+                    <small id="currentDate">
+                        Loading date...
+                    </small>
+
+                </div>
+
+
+                <button
+                    class="notification-icon"
+                    id="notificationButton"
+                    title="Notifications">
+
+                    <i class="fa-regular fa-bell"></i>
+
+                    <span id="notificationCount">
+                        0
+                    </span>
+
+                </button>
+
+
+                <div class="user-profile">
+
+                    <div class="user-avatar">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+
+                    <div>
+                        <strong>Administrator</strong>
+                        <small>Hospital Admin</small>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ================= NOTIFICATIONS ================= -->
+
+        <div
+            id="notificationPanel"
+            class="mv-notification-panel hidden">
+
+            <div class="mv-notification-head">
+
+                <strong>Notifications</strong>
+
+                <button onclick="markAllNotificationsRead()">
+                    Mark all read
+                </button>
+
+            </div>
+
+            <div id="notificationList"></div>
+
+        </div>
+
+
+        <!-- =====================================================
+             COMMAND CENTER
+             ===================================================== -->
+
+        <section id="commandDashboard">
+
+
+            <!-- PATIENT HEADER -->
+
+            <section class="mv-patient-banner">
+
+                <div class="mv-patient-main">
+
+                    <div class="mv-patient-icon">
+
+                        <i class="fa-solid fa-user-injured"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="mv-live-label">
+
+                            <span class="mv-live-dot"></span>
+
+                            LIVE PATIENT MONITORING
+
+                        </div>
+
+
+                        <h2 id="dashboardPatientName">
+                            Demo Patient
+                        </h2>
+
+
+                        <p>
+
+                            Patient ID:
+                            <strong id="dashboardPatientId">
+                                P001
+                            </strong>
+
+                            &nbsp;•&nbsp;
+
+                            Bed:
+                            <strong id="dashboardBedId">
+                                BED-01
+                            </strong>
+
+                            &nbsp;•&nbsp;
+
+                            ICU Monitoring
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="mv-patient-status">
+
+                    <span
+                        id="patientStatusBadge"
+                        class="mv-status normal">
+
+                        MONITORING
+
+                    </span>
+
+                    <small id="hardwareConnectionText">
+                        Connecting to ESP32...
+                    </small>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 LIVE SENSOR CARDS
+                 ================================================= -->
+
+            <section class="mv-vitals-grid">
+
+
+                <!-- BED -->
+
+                <div class="mv-vital-card">
+
+                    <div class="mv-vital-icon blue">
+
+                        <i class="fa-solid fa-bed"></i>
+
+                    </div>
+
+                    <div>
+
+                        <span>Bed Status</span>
+
+                        <strong id="liveBedStatus">
+                            WAITING
+                        </strong>
+
+                        <small id="liveBedSub">
+                            ESP32 FSR
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- IV -->
+
+                <div class="mv-vital-card">
+
+                    <div class="mv-vital-icon purple">
+
+                        <i class="fa-solid fa-droplet"></i>
+
+                    </div>
+
+                    <div>
+
+                        <span>IV Fluid</span>
+
+                        <strong id="liveIVLevel">
+                            --
+                        </strong>
+
+                        <small id="liveIVStatus">
+                            Waiting for sensor
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- HEART RATE -->
+
+                <div class="mv-vital-card">
+
+                    <div class="mv-vital-icon red">
+
+                        <i class="fa-solid fa-heart-pulse"></i>
+
+                    </div>
+
+                    <div>
+
+                        <span>Heart Rate</span>
+
+                        <strong id="liveHeartRate">
+                            --
+                        </strong>
+
+                        <small id="liveHeartStatus">
+                            Waiting for sensor
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SPO2 -->
+
+                <div class="mv-vital-card">
+
+                    <div class="mv-vital-icon green">
+
+                        <i class="fa-solid fa-lungs"></i>
+
+                    </div>
+
+                    <div>
+
+                        <span>SpO₂</span>
+
+                        <strong id="liveSpO2">
+                            --
+                        </strong>
+
+                        <small id="liveSpO2Status">
+                            Waiting for sensor
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- NURSE -->
+
+                <div class="mv-vital-card">
+
+                    <div class="mv-vital-icon orange">
+
+                        <i class="fa-solid fa-user-nurse"></i>
+
+                    </div>
+
+                    <div>
+
+                        <span>Nurse Presence</span>
+
+                        <strong id="liveNurse">
+                            --
+                        </strong>
+
+                        <small id="liveNurseSub">
+                            BLE monitoring
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- EMERGENCY -->
+
+                <div class="mv-vital-card">
+
+                    <div class="mv-vital-icon red">
+
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+
+                    </div>
+
+                    <div>
+
+                        <span>Emergency</span>
+
+                        <strong id="liveEmergency">
+                            NORMAL
+                        </strong>
+
+                        <small id="liveEmergencySub">
+                            No active emergency
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 MAIN DASHBOARD GRID
+                 ================================================= -->
+
+            <section class="dashboard-grid">
+
+
+                <!-- RESOURCE OVERVIEW -->
+
+                <div class="panel resource-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+                                Resource Overview
+                            </h2>
+
+                            <p>
+                                Resources assigned to this patient
+                            </p>
+
+                        </div>
+
+                        <button
+                            class="view-btn"
+                            onclick="showPage('beds')">
+
+                            View Bed
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="resource-list">
+
+
+                        <!-- BED -->
+
+                        <div class="resource-row">
+
+                            <div class="resource-name">
+
+                                <div class="resource-icon blue">
+
+                                    <i class="fa-solid fa-bed"></i>
+
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Patient Bed
+                                    </strong>
+
+                                    <span id="resourceBedText">
+                                        BED-01 • Waiting
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="progress-container">
+
+                                <div class="progress-bar">
+
+                                    <div
+                                        id="bedProgress"
+                                        class="progress-fill blue-fill"
+                                        style="width:0%">
+                                    </div>
+
+                                </div>
+
+                                <strong id="bedProgressText">
+                                    --
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- IV -->
+
+                        <div class="resource-row">
+
+                            <div class="resource-name">
+
+                                <div class="resource-icon purple">
+
+                                    <i class="fa-solid fa-droplet"></i>
+
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        IV Fluid
+                                    </strong>
+
+                                    <span id="resourceIVText">
+                                        Waiting for HX711
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="progress-container">
+
+                                <div class="progress-bar">
+
+                                    <div
+                                        id="ivProgress"
+                                        class="progress-fill purple-fill"
+                                        style="width:0%">
+                                    </div>
+
+                                </div>
+
+                                <strong id="ivProgressText">
+                                    --
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- NURSE -->
+
+                        <div class="resource-row">
+
+                            <div class="resource-name">
+
+                                <div class="resource-icon green">
+
+                                    <i class="fa-solid fa-user-nurse"></i>
+
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Nurse
+                                    </strong>
+
+                                    <span id="resourceNurseText">
+                                        BLE proximity monitoring
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="progress-container">
+
+                                <div
+                                    class="mv-resource-pill"
+                                    id="nurseResourcePill">
+
+                                    WAITING
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- MONITOR -->
+
+                        <div class="resource-row">
+
+                            <div class="resource-name">
+
+                                <div class="resource-icon orange">
+
+                                    <i class="fa-solid fa-heart-pulse"></i>
+
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Patient Monitor
+                                    </strong>
+
+                                    <span>
+                                        MAX30102
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="progress-container">
+
+                                <div
+                                    class="mv-resource-pill"
+                                    id="monitorResourcePill">
+
+                                    WAITING
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     AI ORCHESTRATION
+                     ================================================= -->
+
+                <div class="panel ai-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+
+                                <i class="fa-solid fa-robot"></i>
+
+                                AI Orchestration
+
+                            </h2>
+
+                            <p>
+                                Decision engine for this patient
+                            </p>
+
+                        </div>
+
+                        <span class="ai-status">
+                            ACTIVE
+                        </span>
+
+                    </div>
+
+
+                    <div class="ai-content">
+
+                        <div class="ai-ring">
+
+                            <i class="fa-solid fa-brain"></i>
+
+                        </div>
+
+
+                        <h3 id="aiSummaryTitle">
+                            Monitoring patient state
+                        </h3>
+
+
+                        <p id="aiSummaryText">
+
+                            Medinova is waiting for
+                            live ESP32 readings.
+
+                        </p>
+
+
+                        <div class="ai-stats">
+
+                            <div>
+
+                                <strong id="aiPatientStat">
+                                    P001
+                                </strong>
+
+                                <span>
+                                    Patient
+                                </span>
+
+                            </div>
+
+
+                            <div>
+
+                                <strong id="aiResourceStat">
+                                    4
+                                </strong>
+
+                                <span>
+                                    Resources
+                                </span>
+
+                            </div>
+
+
+                            <div>
+
+                                <strong id="aiAlertStat">
+                                    0
+                                </strong>
+
+                                <span>
+                                    Alerts
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            class="ai-button"
+                            onclick="runAIAnalysis()">
+
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                            Run Allocation Analysis
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     EMERGENCY
+                     ================================================= -->
+
+                <div class="panel emergency-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+
+                                Patient Emergency
+
+                            </h2>
+
+                            <p>
+                                Real-time escalation workflow
+                            </p>
+
+                        </div>
+
+
+                        <span
+                            class="alert-count"
+                            id="dashboardAlertCount">
+
+                            0
+
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="dashboardEmergencyContent"
+                        class="emergency-list">
+
+                        <div class="mv-empty-state">
+
+                            <i class="fa-solid fa-shield-heart"></i>
+
+                            <strong>
+                                No active emergency
+                            </strong>
+
+                            <span>
+                                Patient is being monitored continuously.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     FORECAST
+                     ================================================= -->
+
+                <div class="panel forecast-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+
+                                <i class="fa-solid fa-chart-line"></i>
+
+                                Patient Load Forecast
+
+                            </h2>
+
+                            <p>
+                                Demo forecast • Next 4 hours
+                            </p>
+
+                        </div>
+
+
+                        <span class="forecast-badge">
+                            AI PREDICTION
+                        </span>
+
+                    </div>
+
+
+                    <div class="forecast-content">
+
+                        <div class="forecast-number">
+
+                            <strong id="forecastRiskNumber">
+                                LOW
+                            </strong>
+
+                            <span id="forecastRiskText">
+                                Current patient resource demand
+                            </span>
+
+                        </div>
+
+
+                        <div class="forecast-bars">
+
+                            <div class="forecast-column">
+
+                                <div
+                                    class="bar"
+                                    style="height:35%">
+                                </div>
+
+                                <span>Now</span>
+
+                            </div>
+
+
+                            <div class="forecast-column">
+
+                                <div
+                                    class="bar"
+                                    style="height:45%">
+                                </div>
+
+                                <span>+1h</span>
+
+                            </div>
+
+
+                            <div class="forecast-column">
+
+                                <div
+                                    class="bar"
+                                    style="height:55%">
+                                </div>
+
+                                <span>+2h</span>
+
+                            </div>
+
+
+                            <div class="forecast-column">
+
+                                <div
+                                    class="bar"
+                                    style="height:65%">
+                                </div>
+
+                                <span>+3h</span>
+
+                            </div>
+
+
+                            <div class="forecast-column">
+
+                                <div
+                                    class="bar"
+                                    style="height:50%">
+                                </div>
+
+                                <span>+4h</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 ACTIVITY
+                 ================================================= -->
+
+            <section class="panel activity-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Recent System Activity
+                        </h2>
+
+                        <p>
+                            Latest events for P001
+                        </p>
+
+                    </div>
+
+                    <button
+                        class="view-btn"
+                        onclick="showPage('analytics')">
+
+                        View All
+
+                    </button>
+
+                </div>
+
+
+                <div class="activity-table">
+
+                    <div class="table-header">
+
+                        <span>TIME</span>
+                        <span>EVENT</span>
+                        <span>RESOURCE</span>
+                        <span>STATUS</span>
+
+                    </div>
+
+
+                    <div id="activityRows"></div>
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             DYNAMIC PAGES
+             ===================================================== -->
+
+        <section
+            id="pageContent"
+            style="display:none;">
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
